@@ -18,7 +18,9 @@ ted_talks <- read_csv("aula-08/data/ted_main.csv") %>%
 # Cria data.frame (tibble) ted_main com os atributos principais de uma talk
 ted_main <- ted_talks %>%
   select(url, name, main_speaker, speaker_occupation, num_speaker, title, event, duration, film_date, published_date, comments, languages, views, description)
-  
+
+summary(ted_main)
+
 # Cria data.frame (tibble) ted_ratings com cada categoria atribuida a uma ted_talk, a quantidade de vezes que a categoria foi votada e a proporção de votos de cada categoria
 ted_ratings <- ted_talks %>%
   select( url, ratings ) %>%
