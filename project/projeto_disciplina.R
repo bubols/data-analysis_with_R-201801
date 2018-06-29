@@ -12,11 +12,23 @@ insta_products <- read_csv( "project/order_products_instacart.csv" ) # Produtos 
 
 #1 # Quantos dos produtos do cadastro nunca foram comprados?
 
+anti_join(products, insta_products, by = "product_id") %>%
+    count()
 
 #2 # Crie um dataframe com os dados combinados de produtos, corredores e departamentos. 
 
+combined_data <- products %>%
+    inner_join(aisles, by = 'aisle_id') %>%
+    inner_join(departments, by = 'department_id')
+  
 
 #3 # Quais as 10 combinações corredor + departamento que possuem mais produtos cadastrados? Use o dataframe da atividade #2.
+
+top10combined <- combined_data %>%
+    group_by(department_id, aisle_id) %>%
+    summarise(quantidade = n()) %>%
+    arrange(desc(quantidade)) %>%
+    head(10)
 
 
 #4 # Qual o percentual de pedidos que possuem algum produto dos pares 'corredor + departamento' da atividade anterior?
