@@ -24,24 +24,43 @@ combined_data <- products %>%
 
 #3 # Quais as 10 combinações corredor + departamento que possuem mais produtos cadastrados? Use o dataframe da atividade #2.
 
-top10combined <- combined_data %>%
-    group_by(department_id, aisle_id) %>%
+top10combinations <- combined_data %>%
+    group_by(department_id, aisle_id, department, aisle) %>%
     summarise(quantidade = n()) %>%
     arrange(desc(quantidade)) %>%
-    head(10)
-
+    head(10) %>%
+    ungroup()
 
 #4 # Qual o percentual de pedidos que possuem algum produto dos pares 'corredor + departamento' da atividade anterior?
 
-
+percentage_pairs <- products %>%
+  inner_join(top10combinations, by = "aisle_id", "department_id") %>%
+  inner_join(insta_products, by = "product_id") %>%
+  distinct(order_id) %>%
+  summarise((n() / count(insta_orders) * 100)) %>% View()
+  
 #5 # Crie um novo dataframe de produtos em pedidos retirando aqueles produtos que não estão categorizados (usar resultado das atividades 3 e 4)
 
+categorized <- products %>%
+  inner_join(insta_products, by = 'product_id') %>%
+  inner_join(top10combinations, by = 'aisle_id', 'department_id') %>% 
+  filter(aisle != 'missing' | department != 'missing') %>% View()
 
 #6 # Crie um dataframe que combine todos os dataframes através das suas chaves de ligação. Para produtos de pedidos, use o dataframe da atividade 4
    # Transforme as variáveis user_id, department e aisle em factor
    # Transforme a variável order_hour_of_day em um factor ordenado (ordered)
 
    # Este dataframe deverá ser utilizado em todas as atividades seguintes
+
+df <- products %>%
+  inner_join(insta_products, by = 'product_id') %>%
+  inner_join(insta_orders, by = 'order_id') %>%
+  inner_join(aisles, by = 'aisle_id') %>%
+  inner_join(departments, by = 'department_id') %>%
+  inner_join(top10combinations, by = 'aisle_id', 'department_id') %>%
+  select(order_id, order_number, order_hour_of_day, order_dow, user_id, days_since_prior_order, product_id, product_name, aisle_id, aisle,
+department_id, department)
+
 
 
 #7 # Identifique os 5 horários com maior quantidade de usuários que fizeram pedidos
