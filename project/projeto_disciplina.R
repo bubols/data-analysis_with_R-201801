@@ -1,5 +1,8 @@
 # Descrição dos dados: https://tech.instacart.com/3-million-instacart-orders-open-sourced-d40d29ead6f2
 # Estamos trabalhando com somente uma amostra do total de pedidos. O dataset abaixo não possui 3 milhões de pedidos ;)
+
+# Ricardo Bubols Pinheiro e Rodrigo Martinelli Toledo
+
 library( tidyverse )
 library( dplyr )
 library( ggplot2 )
@@ -105,7 +108,7 @@ mean_sales <- top15 %>%
   ggplot(data = mean_sales, aes(x = order_hour_of_day, y = media_quantidade, group = product_name)) + 
     geom_line(aes(colour = product_name)) +
     geom_point(aes(colour = product_name)) + 
-      labs(x = 'Hour of the Day', y = 'Amount', title = 'Average Hourly Sales', colour = 'Product Name')
+    labs(x = 'Hour of the Day', y = 'Amount', title = 'Average Hourly Sales', colour = 'Product Name')
 
   # Apesar dos produtos terem um padrão similar ao longo do dia, o 'Organic Whole String Cheese' representa o maior volume de vendas.
   # Além disso, este produto tem um pico de vendas no horário 16, enquanto os demais vendem menos nesse horário.
@@ -135,8 +138,8 @@ graph_avg_product_hour <- df %>%
   ungroup() 
   
 ggplot(data = graph_avg_product_hour, aes( x = hour, y = quantidade, ymin = sd_min, ymax = sd_max )) +
-geom_ribbon(fill = "gray", alpha = 0.5) +
-geom_jitter(alpha = 0.2, height = 0, width = 0.3) +
+  geom_ribbon(fill = "gray", alpha = 0.5) +
+  geom_jitter(alpha = 0.2, height = 0, width = 0.3) +
   labs(x = 'Hour of the Day', y = 'Average amount of products', title = 'Graph 11')
 
 #12 # Visualize um boxplot da quantidade de pedidos por hora nos 7 dias da semana. O resultado deve ter order_dow como eixo x.
@@ -148,8 +151,8 @@ order_per_hour <- df %>%
   ungroup()
 
 ggplot(data = order_per_hour, aes(x = order_dow, y = quantidade, group = order_dow)) +
-geom_boxplot() +
-scale_x_continuous(breaks = seq(from = 0, to = 6, by = 1)) +
+  geom_boxplot() +
+  scale_x_continuous(breaks = seq(from = 0, to = 6, by = 1)) +
   labs(x = 'Day of the week', y = 'Orders', title = 'Graph 12')
   
 #13 # Identifique, por usuário, o tempo médio entre pedidos
@@ -166,15 +169,15 @@ graph_avg_time <- df %>%
   summarise(avg_days = mean(days_since_prior_order))
   
   ggplot(data = graph_avg_time, aes(x = avg_days, )) +
-  geom_bar(fill = 'grey', colour = 'black') + 
-  scale_x_continuous(breaks = 0:30) +
+    geom_bar(fill = 'grey', colour = 'black') + 
+    scale_x_continuous(breaks = 0:30) +
     labs(x = 'Average Returning Time', y = 'Number of Buyes', title = 'Graph 14')
 
 #15 # Faça um gráfico de barras com a quantidade de usuários em cada número de dias desde o pedido anterior. Há alguma similaridade entre os gráficos das atividades 14 e 15? 
 
 ggplot(data = df, aes(x = days_since_prior_order)) +
-geom_bar(fill = 'grey', colour = 'black') +
-scale_x_continuous(breaks = 0:30) +
+  geom_bar(fill = 'grey', colour = 'black') +
+  scale_x_continuous(breaks = 0:30) +
   labs(x = 'Days Since Prior Order', y = 'Number of Buyes', title = 'Graph 15')
 
     # Sim, há similaridade entre os gráficos, que pode indicar um comportamento contiuno entre os compradores. 
@@ -201,15 +204,35 @@ graph_avg_time_filter <- df %>%
 
 #17 # O vetor abaixo lista todos os IDs de bananas maduras em seu estado natural.
     # Utilizando este vetor, identifique se existem pedidos com mais de um tipo de banana no mesmo pedido.
-    # bananas <- c(24852, 13176, 39276, 37067, 29259)
+  
+bananas <- c(24852, 13176, 39276, 37067, 29259)
 
+dataset_bananas <- insta_products %>%
+  filter(product_id %in% bananas) %>%
+  group_by(order_id) %>%
+  summarise(quantidade = n()) %>%
+  filter(quantidade > 1)
 
 #18 # Se existirem, pedidos resultantes da atividade 17, conte quantas vezes cada tipo de banana aparece nestes pedidos com mais de um tipo de banana.
     # Após exibir os tipos de banana, crie um novo vetor de id de bananas contendo somente os 3 produtos de maior contagem de ocorrências
 
+vetor_bananas <- insta_products %>%
+  inner_join(dataset_bananas, by = 'order_id') %>%
+  group_by(product_id) %>%
+  count() %>%
+  arrange(desc(n)) %>%
+  head(3)
+
+vetor_3_bananas = as_vector(vetor_bananas$product_id)
 
 #19 # Com base no vetor criado na atividade 18, conte quantos pedidos de, em média, são feitos por hora em cada dia da semana. 
 
+orders_bananas <- insta_orders %>%
+  inner_join(insta_products, by = 'order_id') %>%
+  filter(product_id %in% vetor_3_bananas) %>%
+  group_by(order_dow, order_hour_of_day) %>%
+  summarise(quantidade = n_distinct(order_id)) %>%
+  ungroup()
 
 #20 # Faça um gráfico dos pedidos de banana da atividade 19. O gráfico deve ter o dia da semana no eixo X, a hora do dia no eixo Y, 
     # e pontos na intersecção dos eixos, onde o tamanho do ponto é determinado pela quantidade média de pedidos de banana 
