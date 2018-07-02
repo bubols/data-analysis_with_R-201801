@@ -238,6 +238,9 @@ orders_bananas <- insta_orders %>%
     # e pontos na intersecção dos eixos, onde o tamanho do ponto é determinado pela quantidade média de pedidos de banana 
     # nesta combinação de dia da semana com hora
 
+  ggplot(data = orders_bananas, aes(x = 'order_dow', y = 'order_hour_of_day', size = 'quantidade')) +
+    geom_point() +
+    labs(x = 'Day of the Week', y = 'Time', title = 'Graph 20')
 
 #21 # Faça um histograma da quantidade média calculada na atividade 19, facetado por dia da semana
 
